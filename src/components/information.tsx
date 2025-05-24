@@ -26,18 +26,26 @@ export default function Information() {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>How to play???</DialogTitle>
+                    <DialogTitle>How to Play</DialogTitle>
                     <DialogDescription>
-                        You have 6 guesses to determine the correct word. Each guess must be a valid 5-letter word.
+                        Challenge your friend or test yourself! You have 6 tries to guess the 5-letter word.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
+                    <p className="text-sm text-muted-foreground">
+                        Each guess must be a valid 5-letter word. The color of each box will tell you how close you are.
+                    </p>
                     {LEGENDS.map((legend, index) => (
                         <div key={index} className="flex items-center gap-2">
                             <Box letter={'A'} status={legend.state}/>
                             <span className="text-sm">{legend.message}</span>
                         </div>
                     ))}
+                </div>
+                <div className="mt-4 text-sm text-muted-foreground">
+                    🔁 Take turns guessing.
+                    👀 Try to outsmart your opponent.
+                    🧠 First to guess it right—or get the furthest—wins!
                 </div>
             </DialogContent>
         </Dialog>
