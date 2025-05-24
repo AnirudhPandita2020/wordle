@@ -1,6 +1,5 @@
-import {Info, PenLine} from "lucide-react";
+import {PenLine} from "lucide-react";
 import {ModeToggle} from "./mode-toggle.tsx";
-import {Button} from "./ui/button.tsx";
 import Information from "./information.tsx";
 
 export default function Header() {

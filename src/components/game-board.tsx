@@ -14,8 +14,10 @@ const initialGameState: GameState = {
     state: "in-progress",
     lines: new Array(6).fill(null).map(() => new Array(5).fill('')),
     gameWon: false,
-    currentLineIndex: 0
-}
+    currentLineIndex: 0,
+};
+
+const POINTS_TABLE = [10, 8, 6, 4, 2, 1];
 
 const FALLBACK_WORDS = ['HELLO', 'WORLD', 'REACT', 'HOOKS', 'GAMES', 'WORDS'];
 
@@ -23,10 +25,10 @@ export function GameBoard() {
     const [words, setWords] = useState<string[]>(FALLBACK_WORDS);
     const [word, setWord] = useState('');
     const [gameState, setGameState] = useState(initialGameState);
-    const resetGame = () => {
-        setGameState(initialGameState);
-        setWord(words[Math.floor(Math.random() * words.length)]);
-    };
+    const [turn, setTurn] = useState<'Player 1' | 'Player 2'>('Player 1');
+    const [scores, setScores] = useState(new Map([['Player 1', 0], ['Player 2', 0]]));
+
+    console.log(`Current word: ${word}`);
 
     useEffect(() => {
         fetch('/words.json')
@@ -79,6 +81,25 @@ export function GameBoard() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [gameState, word]);
 
+    useEffect(() => {
+        if (gameState.state === 'finished') {
+            if (gameState.gameWon) {
+                setScores(prev => {
+                    const updated = new Map(prev);
+                    updated.set(turn, (updated.get(turn) || 0) + POINTS_TABLE[gameState.currentLineIndex - 1]);
+                    return updated;
+                });
+            }
+            setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
+        }
+    }, [gameState.state]);
+
+    const resetGame = () => {
+        setGameState(initialGameState);
+        setWord(words[Math.floor(Math.random() * words.length)]);
+
+    };
+
     if (gameState.state === 'finished' && !gameState.gameWon) {
         return (
             <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
@@ -93,7 +114,7 @@ export function GameBoard() {
     if (gameState.gameWon) {
         return (
             <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
-                <div className="text-lg">You guessed it! Wanna try again?</div>
+                <div className="text-lg">You guessed it! Wanna try {turn}???</div>
                 <Button onClick={resetGame}>
                     <RefreshCcw/>New game
                 </Button>
@@ -103,6 +124,10 @@ export function GameBoard() {
 
     return (
         <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+            <div className="flex gap-2 mb-10">
+                <Button className="p-6" variant="outline">Player 1: {scores.get('Player 1')}</Button>
+                <Button className="p-6" variant="outline">Player 2: {scores.get('Player 2')}</Button>
+            </div>
             <Grid lines={gameState.lines} correctWord={word} currentLineIndex={gameState.currentLineIndex}/>
         </main>
     )
