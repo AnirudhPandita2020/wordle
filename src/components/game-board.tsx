@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import {Button} from "./ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
 
+
 type GameState = {
     state: "in-progress" | "finished";
     lines: string[][];
@@ -27,8 +28,6 @@ export function GameBoard() {
     const [gameState, setGameState] = useState(initialGameState);
     const [turn, setTurn] = useState<'Player 1' | 'Player 2'>('Player 1');
     const [scores, setScores] = useState(new Map([['Player 1', 0], ['Player 2', 0]]));
-
-    console.log(`Current word: ${word}`);
 
     useEffect(() => {
         fetch('/words.json')
