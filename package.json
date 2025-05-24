@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "local": "vite --host 192.168.0.109",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

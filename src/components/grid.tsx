@@ -8,8 +8,7 @@ function Box({letter, status}: { letter: string, status: Status }) {
         default: ''
     };
     return (
-        <div
-            className={`flex justify-center items-center w-14 h-14 p-1 border dark:border-white border-black rounded ${letterStyles[status]}`}>
+        <div className={`flex justify-center items-center w-14 h-14 p-1 border dark:border-white border-black rounded ${letterStyles[status]}`}>
             <span className="capitalize">{letter}</span>
         </div>
     )
