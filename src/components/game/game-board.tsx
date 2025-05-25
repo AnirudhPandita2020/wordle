@@ -37,7 +37,7 @@ export function GameBoard() {
     useEffect(() => {
         wordRef.current = word;
         gameStateRef.current = gameState;
-    }, [word, gameState]);
+    }, [word,gameState]);
 
     useEffect(() => {
         fetch('/words.json')
@@ -122,16 +122,6 @@ export function GameBoard() {
         );
     }
 
-    if (gameState.gameWon) {
-        return (
-            <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
-                <div className="text-lg">You guessed it! Wanna try {turn}???</div>
-                <Button onClick={resetGame}>
-                    <RefreshCcw/>New game
-                </Button>
-            </main>
-        );
-    }
 
     return (
         <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
@@ -140,7 +130,15 @@ export function GameBoard() {
                 <Button className="p-6" variant="outline">Player 2: {scores.get('Player 2')}</Button>
             </div>
             <Grid lines={gameState.lines} correctWord={word} currentLineIndex={gameState.currentLineIndex}/>
-            {mobile && <Keyboard onKeyPress={(key) => handleKeyDown({key:key} as KeyboardEvent)}/>}
+            {gameState.gameWon && (
+                <>
+                    <div className="text-lg">You guessed it! Wanna try {turn}???</div>
+                    <Button onClick={resetGame}>
+                        <RefreshCcw/>New game
+                    </Button>
+                </>
+            )}
+            {mobile && <Keyboard onKeyPress={(key) => handleKeyDown({key: key} as KeyboardEvent)}/>}
         </main>
     )
 }

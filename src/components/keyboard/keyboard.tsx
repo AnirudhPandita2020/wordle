@@ -1,4 +1,6 @@
 import {Button} from "../ui/button.tsx";
+import {letterStyles} from "../game/grid.tsx";
+import {useKeyStroke} from "../../providers/key-stroke-provider.tsx";
 
 const KEYS = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -6,20 +8,24 @@ const KEYS = [
     ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace'],
 ];
 
-export default function Keyboard({ onKeyPress }: { onKeyPress: (key: string) => void }) {
+type KeyboardProp = {
+    onKeyPress: (key: string) => void;
+};
+
+export default function Keyboard({onKeyPress}: KeyboardProp) {
+    const {keyStroke} = useKeyStroke();
     return (
         <div className="flex flex-col items-center gap-2 mt-4 w-full overflow-x-auto px-2">
             {KEYS.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex justify-center gap-2 w-full">
-                    {row.map((key) => (
-                        <Button
+                    {row.map((key) => {
+                        return <Button
                             key={key}
-                            variant="outline"
                             onClick={() => onKeyPress(key)}
-                            className="flex-1 min-w-[25px] max-w-[50px] capitalize px-2 py-2 text-sm font-medium rounded bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-all text-center">
+                            className={`flex-1 min-w-[25px] max-w-[50px] ${letterStyles[keyStroke[key.toUpperCase()]] || ''} capitalize px-2 py-2 text-sm font-medium rounded transition-all text-center`}>
                             {key === 'Backspace' ? '←' : key === 'Enter' ? '↵' : key}
                         </Button>
-                    ))}
+                    })}
                 </div>
             ))}
         </div>
