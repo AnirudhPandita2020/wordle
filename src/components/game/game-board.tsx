@@ -37,7 +37,7 @@ export function GameBoard() {
     useEffect(() => {
         wordRef.current = word;
         gameStateRef.current = gameState;
-    }, [word,gameState]);
+    }, [word, gameState]);
 
     useEffect(() => {
         fetch('/words.json')
