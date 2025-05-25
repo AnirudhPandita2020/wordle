@@ -1,6 +1,6 @@
 import type {Status} from "../components/game/grid.tsx";
 import type {ReactNode} from "react";
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useContext, useState} from "react";
 
 type KeyStrokeProviderProps = {
     children: ReactNode;
@@ -13,7 +13,7 @@ type KeyStrokeProviderState = {
 
 const initialState: KeyStrokeProviderState = {
     keyStroke: {},
-    setKeyStatus: (key: string, status: Status) => null
+    setKeyStatus: () => null
 }
 
 const KeyStrokeProviderContext = createContext<KeyStrokeProviderState>(initialState);
