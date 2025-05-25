@@ -67,6 +67,7 @@ export function GameBoard() {
                     return updated;
                 });
                 playWinningSound();
+                return;
             }
             setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
             plateLosingSound();
