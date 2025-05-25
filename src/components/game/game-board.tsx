@@ -67,6 +67,7 @@ export function GameBoard() {
                     updated.set(turn, (updated.get(turn) || 0) + POINTS_TABLE[gameState.currentLineIndex - 1]);
                     return updated;
                 });
+                setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
                 return;
             }
             plateLosingSound();
