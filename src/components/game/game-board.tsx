@@ -4,7 +4,7 @@ import {Button} from "../ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
 import Keyboard from "../keyboard/keyboard.tsx";
 import {useKeyStroke} from "../../providers/key-stroke-provider.tsx";
-
+import {plateLosingSound, playWinningSound} from "../../lib/sound.ts";
 
 type GameState = {
     state: "in-progress" | "finished";
@@ -13,16 +13,17 @@ type GameState = {
     currentLineIndex: number;
 }
 
+const POINTS_TABLE = [10, 8, 6, 4, 2, 1];
+const FALLBACK_WORDS = ['HELLO', 'WORLD', 'REACT', 'HOOKS', 'GAMES', 'WORDS'];
+const MAX_GUESSES = 6;
+const WORD_LENGTH = 5;
+
 const initialGameState: GameState = {
     state: "in-progress",
-    lines: new Array(6).fill(null).map(() => new Array(5).fill('')),
+    lines: new Array(MAX_GUESSES).fill(null).map(() => new Array(WORD_LENGTH).fill('')),
     gameWon: false,
     currentLineIndex: 0,
 };
-
-const POINTS_TABLE = [10, 8, 6, 4, 2, 1];
-
-const FALLBACK_WORDS = ['HELLO', 'WORLD', 'REACT', 'HOOKS', 'GAMES', 'WORDS'];
 
 export function GameBoard() {
     const [words, setWords] = useState<string[]>(FALLBACK_WORDS);
@@ -46,7 +47,10 @@ export function GameBoard() {
                 setWords(data);
                 setWord(data[Math.floor(Math.random() * data.length)]);
             })
-            .catch(_error => setWords(FALLBACK_WORDS));
+            .catch(_error => {
+                setWords(FALLBACK_WORDS);
+                setWord(FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)]);
+            });
     }, []);
 
     useEffect(() => {
@@ -62,14 +66,18 @@ export function GameBoard() {
                     updated.set(turn, (updated.get(turn) || 0) + POINTS_TABLE[gameState.currentLineIndex - 1]);
                     return updated;
                 });
+                playWinningSound();
             }
             setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
+            plateLosingSound();
         }
     }, [gameState.state]);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         const word = wordRef.current;
         const gameState = gameStateRef.current;
+
+        if (gameState.state === 'finished') return;
         if (word === '') return;
 
         const key = event.key;
@@ -121,7 +129,7 @@ export function GameBoard() {
             <Grid lines={gameState.lines} correctWord={word} currentLineIndex={gameState.currentLineIndex}/>
             {gameState.gameWon && (
                 <>
-                    <div className="text-lg">You guessed it! Wanna try {turn}???</div>
+                    <div className="text-lg">You guessed it! Wanna try, {turn}???</div>
                     <Button onClick={resetGame}>
                         <RefreshCcw/>New game
                     </Button>
