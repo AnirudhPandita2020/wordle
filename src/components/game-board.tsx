@@ -1,5 +1,5 @@
 import {Grid} from "./grid.tsx";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {Button} from "./ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
 
@@ -28,6 +28,13 @@ export function GameBoard() {
     const [gameState, setGameState] = useState(initialGameState);
     const [turn, setTurn] = useState<'Player 1' | 'Player 2'>('Player 1');
     const [scores, setScores] = useState(new Map([['Player 1', 0], ['Player 2', 0]]));
+    const wordRef = useRef(word);
+    const gameStateRef = useRef(gameState);
+
+    useEffect(() => {
+        wordRef.current = word;
+        gameStateRef.current = gameState;
+    }, [word, gameState]);
 
     useEffect(() => {
         fetch('/words.json')
@@ -41,6 +48,8 @@ export function GameBoard() {
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
+            const word = wordRef.current;
+            const gameState = gameStateRef.current;
             if (word === '') return;
 
             const key = event.key;
@@ -78,7 +87,7 @@ export function GameBoard() {
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [gameState, word]);
+    }, []);
 
     useEffect(() => {
         if (gameState.state === 'finished') {
@@ -93,11 +102,10 @@ export function GameBoard() {
         }
     }, [gameState.state]);
 
-    const resetGame = () => {
+    const resetGame = useCallback(() => {
         setGameState(initialGameState);
         setWord(words[Math.floor(Math.random() * words.length)]);
-
-    };
+    }, [words]);
 
     if (gameState.state === 'finished' && !gameState.gameWon) {
         return (
