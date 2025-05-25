@@ -1,3 +1,5 @@
+// noinspection TypeScriptValidateTypes
+
 import type {Status} from "../components/game/grid.tsx";
 import type {ReactNode} from "react";
 import {createContext, useContext, useState} from "react";
@@ -7,23 +9,31 @@ type KeyStrokeProviderProps = {
 }
 
 type KeyStrokeProviderState = {
-    keyStroke: Record<string, Status>;
+    keyStroke: { [p: string]: Status };
     setKeyStatus: (key: string, status: Status) => void;
+    resetKeyStroke: () => void;
 }
 
 const initialState: KeyStrokeProviderState = {
     keyStroke: {},
-    setKeyStatus: () => null
+    setKeyStatus: () => null,
+    resetKeyStroke: () => null
 }
 
 const KeyStrokeProviderContext = createContext<KeyStrokeProviderState>(initialState);
 
 export function KeyStrokeProvider({children}: KeyStrokeProviderProps) {
-    const [keyStroke, setKeyStroke] = useState<Record<string, Status>>({});
+    const [keyStroke, setKeyStroke] = useState<{ [p: string]: Status }>({});
     const setKeyStatus = (key: string, status: Status) => {
-        setKeyStroke(prev => ({...prev, [key]: status}));
+        setKeyStroke((prev) => {
+            if (prev[key] === 'correct') return prev;
+            return {...prev, [key]: status};
+        });
     };
-    const value = {keyStroke, setKeyStatus};
+
+    const resetKeyStroke = () => setKeyStroke({});
+
+    const value = {keyStroke, setKeyStatus, resetKeyStroke};
     return (
         <KeyStrokeProviderContext.Provider value={value}>
             {children}

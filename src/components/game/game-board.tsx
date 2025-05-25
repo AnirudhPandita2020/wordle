@@ -4,6 +4,7 @@ import {Button} from "../ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
 import useMobile from "../../hooks/use-mobile.tsx";
 import Keyboard from "../keyboard/keyboard.tsx";
+import {useKeyStroke} from "../../providers/key-stroke-provider.tsx";
 
 
 type GameState = {
@@ -33,6 +34,7 @@ export function GameBoard() {
     const wordRef = useRef(word);
     const gameStateRef = useRef(gameState);
     const mobile = useMobile();
+    const {resetKeyStroke} = useKeyStroke();
 
     useEffect(() => {
         wordRef.current = word;
@@ -109,19 +111,8 @@ export function GameBoard() {
     const resetGame = useCallback(() => {
         setGameState(initialGameState);
         setWord(words[Math.floor(Math.random() * words.length)]);
-    }, [words]);
-
-    if (gameState.state === 'finished' && !gameState.gameWon) {
-        return (
-            <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
-                <div className="text-lg">You lost! The word was: {word}</div>
-                <Button onClick={resetGame}>
-                    <RefreshCcw/>New game
-                </Button>
-            </main>
-        );
-    }
-
+        resetKeyStroke();
+    }, [words, resetKeyStroke]);
 
     return (
         <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
@@ -133,6 +124,14 @@ export function GameBoard() {
             {gameState.gameWon && (
                 <>
                     <div className="text-lg">You guessed it! Wanna try {turn}???</div>
+                    <Button onClick={resetGame}>
+                        <RefreshCcw/>New game
+                    </Button>
+                </>
+            )}
+            {gameState.state === 'finished' && !gameState.gameWon && (
+                <>
+                    <div className="text-lg">You lost! The word was: {word}</div>
                     <Button onClick={resetGame}>
                         <RefreshCcw/>New game
                     </Button>
