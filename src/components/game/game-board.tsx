@@ -61,16 +61,16 @@ export function GameBoard() {
     useEffect(() => {
         if (gameState.state === 'finished') {
             if (gameState.gameWon) {
+                playWinningSound();
                 setScores(prev => {
                     const updated = new Map(prev);
                     updated.set(turn, (updated.get(turn) || 0) + POINTS_TABLE[gameState.currentLineIndex - 1]);
                     return updated;
                 });
-                playWinningSound();
                 return;
             }
-            setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
             plateLosingSound();
+            setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
         }
     }, [gameState.state]);
 
