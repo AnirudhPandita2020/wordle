@@ -1,7 +1,9 @@
 import {Grid} from "./grid.tsx";
 import {useCallback, useEffect, useRef, useState} from "react";
-import {Button} from "./ui/button.tsx";
+import {Button} from "../ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
+import useMobile from "../../hooks/use-mobile.tsx";
+import Keyboard from "../keyboard/keyboard.tsx";
 
 
 type GameState = {
@@ -30,6 +32,7 @@ export function GameBoard() {
     const [scores, setScores] = useState(new Map([['Player 1', 0], ['Player 2', 0]]));
     const wordRef = useRef(word);
     const gameStateRef = useRef(gameState);
+    const mobile = useMobile();
 
     useEffect(() => {
         wordRef.current = word;
@@ -47,44 +50,6 @@ export function GameBoard() {
     }, []);
 
     useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            const word = wordRef.current;
-            const gameState = gameStateRef.current;
-            if (word === '') return;
-
-            const key = event.key;
-            const currentLine = [...gameState.lines[gameState.currentLineIndex]];
-
-            if (/^[a-zA-Z]$/.test(key)) {
-                const emptyIndex = currentLine.findIndex(c => c === '');
-                if (emptyIndex !== -1) {
-                    currentLine[emptyIndex] = key.toUpperCase();
-                    const newLines = [...gameState.lines];
-                    newLines[gameState.currentLineIndex] = currentLine;
-                    setGameState(prev => ({...prev, lines: newLines}));
-                }
-            } else if (key === 'Backspace') {
-                const lastFilledIndex = currentLine.map(c => c !== '').lastIndexOf(true);
-                if (lastFilledIndex !== -1) {
-                    currentLine[lastFilledIndex] = '';
-                    const newLines = [...gameState.lines];
-                    newLines[gameState.currentLineIndex] = currentLine;
-                    setGameState(prev => ({...prev, lines: newLines}));
-                }
-            } else if (key === 'Enter') {
-                if (currentLine.every(letter => letter !== '')) {
-                    const nextLineIndex = gameState.currentLineIndex + 1;
-                    const isLastLine = nextLineIndex >= gameState.lines.length
-                    const isGameWon = word === currentLine.join('');
-                    setGameState(prev => ({
-                        ...prev,
-                        currentLineIndex: nextLineIndex,
-                        state: isGameWon ? 'finished' : (isLastLine ? 'finished' : 'in-progress'),
-                        gameWon: isGameWon
-                    }));
-                }
-            }
-        };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
@@ -101,6 +66,45 @@ export function GameBoard() {
             setTurn(prev => prev === 'Player 1' ? 'Player 2' : 'Player 1');
         }
     }, [gameState.state]);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+        const word = wordRef.current;
+        const gameState = gameStateRef.current;
+        if (word === '') return;
+
+        const key = event.key;
+        const currentLine = [...gameState.lines[gameState.currentLineIndex]];
+
+        if (/^[a-zA-Z]$/.test(key)) {
+            const emptyIndex = currentLine.findIndex(c => c === '');
+            if (emptyIndex !== -1) {
+                currentLine[emptyIndex] = key.toUpperCase();
+                const newLines = [...gameState.lines];
+                newLines[gameState.currentLineIndex] = currentLine;
+                setGameState(prev => ({...prev, lines: newLines}));
+            }
+        } else if (key === 'Backspace') {
+            const lastFilledIndex = currentLine.map(c => c !== '').lastIndexOf(true);
+            if (lastFilledIndex !== -1) {
+                currentLine[lastFilledIndex] = '';
+                const newLines = [...gameState.lines];
+                newLines[gameState.currentLineIndex] = currentLine;
+                setGameState(prev => ({...prev, lines: newLines}));
+            }
+        } else if (key === 'Enter') {
+            if (currentLine.every(letter => letter !== '')) {
+                const nextLineIndex = gameState.currentLineIndex + 1;
+                const isLastLine = nextLineIndex >= gameState.lines.length
+                const isGameWon = word === currentLine.join('');
+                setGameState(prev => ({
+                    ...prev,
+                    currentLineIndex: nextLineIndex,
+                    state: isGameWon ? 'finished' : (isLastLine ? 'finished' : 'in-progress'),
+                    gameWon: isGameWon
+                }));
+            }
+        }
+    };
 
     const resetGame = useCallback(() => {
         setGameState(initialGameState);
@@ -136,6 +140,7 @@ export function GameBoard() {
                 <Button className="p-6" variant="outline">Player 2: {scores.get('Player 2')}</Button>
             </div>
             <Grid lines={gameState.lines} correctWord={word} currentLineIndex={gameState.currentLineIndex}/>
+            {mobile && <Keyboard onKeyPress={(key) => handleKeyDown({key:key} as KeyboardEvent)}/>}
         </main>
     )
 }

@@ -1,7 +1,7 @@
 import './App.css'
 import Header from "./components/header.tsx";
 import {ThemeProvider} from "./providers/theme-provider.tsx";
-import {GameBoard} from "./components/game-board.tsx";
+import {GameBoard} from "./components/game/game-board.tsx";
 
 function App() {
     return (

@@ -1,8 +1,8 @@
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger} from "./ui/dialog.tsx";
 import {Button} from "./ui/button.tsx";
 import {Info} from "lucide-react";
-import type {Status} from "./grid.tsx";
-import {Box} from "./grid.tsx";
+import type {Status} from "./game/grid.tsx";
+import {Box} from "./game/grid.tsx";
 
 type LegendTypes = {
     state: Status;
