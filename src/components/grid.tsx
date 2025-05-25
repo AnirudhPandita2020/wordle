@@ -1,32 +1,34 @@
-export type Status = 'correct' | 'misplaced' | 'wrong' | 'default';
+type Status = 'correct' | 'misplaced' | 'wrong' | 'default';
+
+const letterStyles = {
+    correct: 'bg-green-500 text-white',
+    misplaced: 'bg-yellow-500 text-white',
+    wrong: 'bg-gray-300 text-black',
+    default: ''
+};
+
+const getStatus = (letter: string, index: number, submitted: boolean, correctWord): Status => {
+    if (!submitted || letter === '') return 'default';
+    if (letter === correctWord[index]) return 'correct';
+    if (correctWord.includes(letter)) return 'misplaced';
+    return 'wrong';
+}
 
 function Box({letter, status}: { letter: string, status: Status }) {
-    const letterStyles = {
-        correct: 'bg-green-500 text-white',
-        misplaced: 'bg-yellow-500 text-white',
-        wrong: 'bg-gray-300 text-black',
-        default: ''
-    };
     return (
-        <div className={`flex justify-center items-center w-14 h-14 p-1 border dark:border-white border-black rounded ${letterStyles[status]}`}>
+        <div
+            className={`flex justify-center items-center w-14 h-14 p-1 border dark:border-white border-black rounded ${letterStyles[status]}`}>
             <span className="capitalize">{letter}</span>
         </div>
     )
 }
 
 function Line({letters, correctWord, submitted}: { letters: string[], correctWord: string, submitted: boolean }) {
-    const getStatus = (letter: string, index: number): Status => {
-        if (!submitted || letter === '') return 'default';
-        if (letter === correctWord[index]) return 'correct';
-        if (correctWord.includes(letter)) return 'misplaced';
-        return 'wrong';
-    };
-
     return (
         <div className="flex justify-center items-center gap-2 mb-2">
             {letters.map((letter, index) => (
                 <Box key={index} letter={letter} correctCharacter={correctWord[index]}
-                     status={getStatus(letter, index)}/>
+                     status={getStatus(letter, index, submitted, correctWord)}/>
             ))}
         </div>
     )
@@ -46,5 +48,5 @@ function Grid({lines, correctWord, currentLineIndex}: {
     )
 }
 
-export {Box, Line, Grid};
+export {Box, Line, Grid, Status};
 

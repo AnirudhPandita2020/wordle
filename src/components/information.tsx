@@ -10,10 +10,10 @@ type LegendTypes = {
 }
 
 const LEGENDS: LegendTypes[] = [
-    {state: 'correct', message: 'The letter is in the correct position.'},
-    {state: 'misplaced', message: 'The letter is in the word but in the wrong position.'},
-    {state: 'wrong', message: 'The letter is not in the word.'},
-    {state: 'default', message: 'This letter has not been guessed yet.'}
+    {state: 'correct', message: '🎯 Bang on!'},
+    {state: 'misplaced', message: '🤔 Right vibe, wrong spot.'},
+    {state: 'wrong', message: '🚫 Nada!'},
+    {state: 'default', message: '🕵️ Waiting...'}
 ];
 
 export default function Information() {
