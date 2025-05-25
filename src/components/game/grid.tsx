@@ -18,26 +18,33 @@ const getStatus = (letter: string, index: number, submitted: boolean, correctWor
 }
 
 function Box({letter, status}: { letter: string, status: Status }) {
-    const {setKeyStatus} = useKeyStroke();
-    useEffect(() => {
-        if (status !== 'default' && letter !== '') {
-            setKeyStatus(letter, status);
-        }
-    }, [letter, status]);
     return (
-        <div className={`flex justify-center items-center w-14 h-14 p-1 border dark:border-white border-black rounded ${letterStyles[status]}`}>
+        <div
+            className={`flex justify-center items-center w-14 h-14 p-1 border dark:border-white border-black rounded ${letterStyles[status]}`}>
             <span className="capitalize">{letter}</span>
         </div>
     );
 }
 
 function Line({letters, correctWord, submitted}: { letters: string[], correctWord: string, submitted: boolean }) {
+    const {setKeyStatus} = useKeyStroke();
+    useEffect(() => {
+        if (!submitted) {
+            return;
+        }
+        letters.forEach((letter, index) => {
+            const status = getStatus(letter, index, submitted, correctWord);
+            if (status !== 'default' && letter !== '') {
+                setKeyStatus(letter.toUpperCase(), status);
+            }
+        });
+    }, [submitted]);
     return (
         <div className="flex justify-center items-center gap-2 mb-2">
-            {letters.map((letter, index) => (
-                <Box key={index} letter={letter} correctCharacter={correctWord[index]}
-                     status={getStatus(letter, index, submitted, correctWord)}/>
-            ))}
+            {letters.map((letter, index) => {
+                return <Box key={index} letter={letter} correctCharacter={correctWord[index]}
+                            status={getStatus(letter, index, submitted, correctWord)}/>
+            })}
         </div>
     );
 }

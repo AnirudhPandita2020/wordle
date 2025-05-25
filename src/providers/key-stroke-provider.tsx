@@ -24,6 +24,7 @@ const KeyStrokeProviderContext = createContext<KeyStrokeProviderState>(initialSt
 
 export function KeyStrokeProvider({children}: KeyStrokeProviderProps) {
     const [keyStroke, setKeyStroke] = useState<{ [p: string]: Status }>({});
+
     const setKeyStatus = (key: string, status: Status) => {
         setKeyStroke((prev) => {
             if (prev[key] === 'correct') return prev;

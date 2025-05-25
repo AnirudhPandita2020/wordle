@@ -2,7 +2,6 @@ import {Grid} from "./grid.tsx";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {Button} from "../ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
-import useMobile from "../../hooks/use-mobile.tsx";
 import Keyboard from "../keyboard/keyboard.tsx";
 import {useKeyStroke} from "../../providers/key-stroke-provider.tsx";
 
@@ -33,7 +32,6 @@ export function GameBoard() {
     const [scores, setScores] = useState(new Map([['Player 1', 0], ['Player 2', 0]]));
     const wordRef = useRef(word);
     const gameStateRef = useRef(gameState);
-    const mobile = useMobile();
     const {resetKeyStroke} = useKeyStroke();
 
     useEffect(() => {
@@ -137,7 +135,7 @@ export function GameBoard() {
                     </Button>
                 </>
             )}
-            {mobile && <Keyboard onKeyPress={(key) => handleKeyDown({key: key} as KeyboardEvent)}/>}
+            <Keyboard onKeyPress={(key) => handleKeyDown({key: key} as KeyboardEvent)}/>
         </main>
     )
 }
