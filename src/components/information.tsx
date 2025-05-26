@@ -10,10 +10,10 @@ type LegendTypes = {
 }
 
 const LEGENDS: LegendTypes[] = [
-    {state: 'correct', message: '🎯 Bang on!'},
-    {state: 'misplaced', message: '🤔 Right vibe, wrong spot.'},
-    {state: 'wrong', message: '🚫 Nada!'},
-    {state: 'default', message: '🕵️ Waiting...'}
+    {state: 'correct', message: '🕺 Boom! You funky word wizard!'},
+    {state: 'misplaced', message: '🎩 Right groove, wrong move!'},
+    {state: 'wrong', message: '💤 That ain’t it, chief.'},
+    {state: 'default', message: '👻 Waiting for some letter magic...'}
 ];
 
 export default function Information() {
@@ -28,7 +28,7 @@ export default function Information() {
                 <DialogHeader>
                     <DialogTitle>How to Play</DialogTitle>
                     <DialogDescription>
-                        Challenge your friend or test yourself! You have 6 tries to guess the 5-letter word.
+                        Test yourself! You have 6 tries to guess the 5-letter word.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
