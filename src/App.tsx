@@ -1,20 +1,51 @@
+// noinspection TypeScriptValidateTypes
+
 import './App.css'
-import Header from "./components/header.tsx";
 import {ThemeProvider} from "./providers/theme-provider.tsx";
-import {GameBoard} from "./components/game/game-board.tsx";
 import {KeyStrokeProvider} from "./providers/key-stroke-provider.tsx";
+import {createBrowserRouter, Navigate, RouterProvider} from "react-router";
+import RootLayout from "./pages/layout.tsx";
+import HomePage from "./pages/home/home-page.tsx";
+import {GamePage} from "./pages/game/game-page.tsx";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import MultiGamePage from "./pages/game/multi/multi-game-page.tsx";
+
+
+const router = createBrowserRouter([
+    {
+        element: <RootLayout/>,
+        children: [
+            {
+                index: true,
+                element: <HomePage/>
+            },
+            {
+                path: '/game',
+                element: <GamePage/>
+            },
+            {
+                path: '/room/:roomID',
+                element: <MultiGamePage/>
+            }
+        ],
+        errorElement: <Navigate to={'/'}/>,
+    }
+]);
+
+
+const queryClient = new QueryClient();
+
 
 function App() {
     return (
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <KeyStrokeProvider>
-                <div className="flex flex-col h-screen">
-                    <Header/>
-                    <GameBoard/>
-                </div>
-            </KeyStrokeProvider>
-        </ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+                <KeyStrokeProvider>
+                    <RouterProvider router={router}/>
+                </KeyStrokeProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
     );
 }
 
-export default App
+export default App;

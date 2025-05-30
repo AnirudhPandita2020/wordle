@@ -24,13 +24,21 @@ const initialGameState: GameState = {
     currentLineIndex: 0,
 };
 
-export function GameBoard() {
+const SCORES = [10, 8, 6, 4, 2, 1];
+
+export function GameBoard({
+                              isMulti, onRoundCompleted = (_score: number) => {
+    }
+                          }: { isMulti: boolean, onRoundCompleted?: (score: number) => void }) {
     const [words, setWords] = useState<string[]>(FALLBACK_WORDS);
     const [word, setWord] = useState('');
     const [gameState, setGameState] = useState(initialGameState);
+    const [score, setScore] = useState(0);
     const wordRef = useRef(word);
     const gameStateRef = useRef(gameState);
     const {resetKeyStroke} = useKeyStroke();
+
+    console.log(word);
 
     useEffect(() => {
         wordRef.current = word;
@@ -57,9 +65,22 @@ export function GameBoard() {
 
     useEffect(() => {
         if (gameState.state === 'finished') {
+            setScore(prevScore => prevScore + SCORES[gameState.currentLineIndex] || 0);
             gameState.gameWon ? playWinningSound() : plateLosingSound();
+            if (!isMulti) {
+                return;
+            }
+            const timer = setTimeout(resetGame, 3000);
+            return () => clearTimeout(timer);
         }
     }, [gameState.state]);
+
+    useEffect(() => {
+        if (score === 0) {
+            return;
+        }
+        onRoundCompleted(score);
+    }, [score]);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         const word = wordRef.current;
@@ -109,14 +130,16 @@ export function GameBoard() {
     }, [words, resetKeyStroke]);
 
     return (
-        <main className="flex flex-1 flex-col justify-center items-center p-4 gap-2">
+        <>
             <Grid lines={gameState.lines} correctWord={word} currentLineIndex={gameState.currentLineIndex}/>
             {gameState.gameWon && (
                 <>
-                    <div className="text-lg">You guessed it! Wanna try again???</div>
-                    <Button onClick={resetGame}>
-                        <RefreshCcw/>New game
-                    </Button>
+                    {!isMulti && <>
+                        <div className="text-lg">You guessed it! Wanna try again???</div>
+                        <Button onClick={resetGame}>
+                            <RefreshCcw/>New Game
+                        </Button>
+                    </>}
                 </>
             )}
             {gameState.state === 'finished' && !gameState.gameWon && (
@@ -128,6 +151,6 @@ export function GameBoard() {
                 </>
             )}
             <Keyboard onKeyPress={(key) => handleKeyDown({key: key} as KeyboardEvent)}/>
-        </main>
+        </>
     )
 }
