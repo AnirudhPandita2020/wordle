@@ -18,7 +18,7 @@ type Game = {
     maxRounds: number;
     maxPlayers: number;
     players: { [sessionId: string]: Player };
-    completedPlayers: Player[];
+    completedPlayers: Player[]
 };
 
 type WaitingRoomProps = {
@@ -44,7 +44,7 @@ function WaitingRoom({players, maxPlayers, roomID}: WaitingRoomProps) {
     return (
         <div className="shadow-lg rounded-lg p-6 text-center w-full border border-gray-200 p-4">
             <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-2">
-                🕺 Waiting for the groove squad to join...
+                🕺 Waiting for the squad to join...
             </h2>
             <div className="mb-6 flex justify-center items-center gap-2">
                 <span
@@ -60,13 +60,9 @@ function WaitingRoom({players, maxPlayers, roomID}: WaitingRoomProps) {
                     <Copy className="h-4 w-4 text-gray-600"/>
                 </Button>
             </div>
-
-            <h2 className="text-xl font-bold dark:text-white text-gray-800 mb-2">Waiting for other players to
-                join...</h2>
             <p className="text-gray-600 mb-4 text-sm">
                 🎮 {joinedPlayers.length} / {maxPlayers} players in the groove
             </p>
-
             <ul className="grid grid-cols-1 gap-2">
                 {joinedPlayers.map((player) => (
                     <li
@@ -87,7 +83,7 @@ function WaitingRoom({players, maxPlayers, roomID}: WaitingRoomProps) {
 
 function Leaderboard({players}: { players: Player[] }) {
     const navigate = useNavigate();
-    const sorted = [...players].sort((a, b) => b.score - a.score);
+    const sorted = players.sort((a, b) => b.score - a.score);
 
     const getMedal = (rank: number) => {
         if (rank === 0) return "🥇";
@@ -113,9 +109,9 @@ function Leaderboard({players}: { players: Player[] }) {
                     >
                         <div className="flex items-center gap-3 text-gray-800 text-sm">
                             <span className="text-lg">{getMedal(index)}</span>
-                            <span>{player.name}</span>
+                            <span className="dark:text-white">{player.name}</span>
                         </div>
-                        <span className="text-gray-600 text-sm font-mono">
+                        <span className="dark:text-white text-sm font-mono">
                             {player.score} pts
                         </span>
                     </li>
@@ -189,13 +185,14 @@ export default function MultiGamePage() {
     useEffect(() => {
         if (!lastJsonMessage) return;
 
-        const {sessionID: id, type, name, game: gameData} = lastJsonMessage;
+        const {playerID, type, name, game: gameData} = lastJsonMessage;
         switch (type) {
+            case "PLAYER_SET":
+                setGame(gameData);
+                setSessionID(playerID);
+                break;
             case "PLAYER_JOINED":
                 setGame(gameData);
-                if (id) {
-                    setSessionID(id);
-                }
                 toast(`🎉 ${name} just slid into the game!`);
                 break;
 
@@ -205,11 +202,11 @@ export default function MultiGamePage() {
 
             case "SCORE_UPDATED":
                 toast.success("💃 Woohoo! You're groovin' into the next round!");
-                const completedPlayerIndex = gameData?.completedPlayers?.findIndex(player => player.id === sessionID);
-                setGame(gameData);
-                if (completedPlayerIndex !== -1) {
+                const isPlayerCompleted = gameData?.completedPlayers?.findIndex(player => player.id === sessionID);
+                if (isPlayerCompleted !== -1) {
                     setLeaderboard(true);
                 }
+                setGame(gameData);
                 break;
             case "PLAYER_LEFT":
                 toast(`👋 ${name} moon-walked out of the game.`);
