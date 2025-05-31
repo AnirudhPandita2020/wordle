@@ -26,10 +26,7 @@ const initialGameState: GameState = {
 
 const SCORES = [10, 8, 6, 4, 2, 1];
 
-export function GameBoard({
-                              isMulti, onRoundCompleted = (_score: number) => {
-    }
-                          }: { isMulti: boolean, onRoundCompleted?: (score: number) => void }) {
+export function GameBoard({isMulti, onRoundCompleted = (_score: number) => {}}: { isMulti: boolean, onRoundCompleted?: (score: number) => void }) {
     const [words, setWords] = useState<string[]>(FALLBACK_WORDS);
     const [word, setWord] = useState('');
     const [gameState, setGameState] = useState(initialGameState);
@@ -76,9 +73,6 @@ export function GameBoard({
     }, [gameState.state]);
 
     useEffect(() => {
-        if (score === 0) {
-            return;
-        }
         onRoundCompleted(score);
     }, [score]);
 
@@ -142,7 +136,7 @@ export function GameBoard({
                     </>}
                 </>
             )}
-            {gameState.state === 'finished' && !gameState.gameWon && (
+            {!isMulti && gameState.state === 'finished' && !gameState.gameWon && (
                 <>
                     <div className="text-lg">You lost! The word was: {word}</div>
                     <Button onClick={resetGame}>

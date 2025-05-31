@@ -268,6 +268,9 @@ export default function MultiGamePage() {
                     <GameBoard
                         isMulti={true}
                         onRoundCompleted={(score: number) => {
+                            if(score === 0){
+                                toast.error("🎉 Oops! Zero points... better luck next round! 😅");
+                            }
                             sendMessage(
                                 JSON.stringify({
                                     type: "INCREMENT_SCORE",
