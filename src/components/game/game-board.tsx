@@ -60,7 +60,7 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number) => {}}: 
 
     useEffect(() => {
         if (gameState.state === 'finished') {
-            setScore(prevScore => prevScore + SCORES[gameState.currentLineIndex] || 0);
+            setScore(gameState.gameWon ? SCORES[gameState.currentLineIndex - 1] : 0);
             gameState.gameWon ? playWinningSound() : plateLosingSound();
             if (!isMulti) {
                 return;
