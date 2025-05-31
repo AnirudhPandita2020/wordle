@@ -35,8 +35,6 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number) => {}}: 
     const gameStateRef = useRef(gameState);
     const {resetKeyStroke} = useKeyStroke();
 
-    console.log(word);
-
     useEffect(() => {
         wordRef.current = word;
         gameStateRef.current = gameState;
@@ -146,5 +144,5 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number) => {}}: 
             )}
             <Keyboard onKeyPress={(key) => handleKeyDown({key: key} as KeyboardEvent)}/>
         </>
-    )
+    );
 }
