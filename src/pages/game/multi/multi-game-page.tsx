@@ -31,7 +31,6 @@ const SOCKET_URL = import.meta.env.VITE_WORDLE_SOCKET_BASE_URL as string;
 
 function WaitingRoom({players, maxPlayers, roomID}: WaitingRoomProps) {
     const joinedPlayers = Object.values(players);
-
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(roomID);
@@ -51,12 +50,7 @@ function WaitingRoom({players, maxPlayers, roomID}: WaitingRoomProps) {
                     className="font-mono font-semibold bg-gray-100 px-4 py-2 rounded text-sm text-gray-800 border border-gray-300">
                     Room ID: {roomID}
                 </span>
-                <Button
-                    onClick={handleCopy}
-                    variant={'outline'}
-                    size={'icon'}
-                    title="Copy Room ID"
-                >
+                <Button onClick={handleCopy} variant={'outline'} size={'icon'} title="Copy Room ID">
                     <Copy className="h-4 w-4 text-gray-600"/>
                 </Button>
             </div>
@@ -268,8 +262,9 @@ export default function MultiGamePage() {
                     <GameBoard
                         isMulti={true}
                         onRoundCompleted={(score: number) => {
-                            if(score === 0){
+                            if (score === 0) {
                                 toast.error("🎉 Oops! Zero points... better luck next round! 😅");
+                                return;
                             }
                             sendMessage(
                                 JSON.stringify({
