@@ -24,7 +24,7 @@ export default function Keyboard({onKeyPress}: KeyboardProp) {
                                 key={key}
                                 onClick={() => onKeyPress(key)}
                                 className={`
-                                            flex-1 min-w-[25px] max-w-[50px]
+                                            flex-1 min-w-[28.6px] max-w-[50px]
                                             capitalize px-2 py-2 text-sm font-medium rounded transition-all text-center
                                             bg-gray-200 text-black hover:bg-gray-300
                                             ${letterStyles[keyStroke[key.toUpperCase()]] || 'dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'}
