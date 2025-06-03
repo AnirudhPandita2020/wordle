@@ -1,8 +1,8 @@
 import useWebSocket from "react-use-websocket";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {toast} from "sonner";
 import {Navigate, useNavigate, useParams, useSearchParams} from "react-router";
-import {GameBoard,ScoreState} from "../../../components/game/game-board.tsx";
+import {GameBoard} from "../../../components/game/game-board.tsx";
 import {Copy} from "lucide-react";
 import {Button} from "../../../components/ui/button.tsx";
 import {Loader} from "../../../components/ui/loader.tsx";
@@ -18,7 +18,8 @@ type Game = {
     maxRounds: number;
     maxPlayers: number;
     players: { [sessionId: string]: Player };
-    completedPlayers: Player[]
+    completedPlayers: Player[],
+    state: "WAITING_FOR_PLAYERS" | "IN_PROGRESS" | "COMPLETED"
 };
 
 type WaitingRoomProps = {
@@ -124,7 +125,6 @@ function Leaderboard({players}: { players: Player[] }) {
     );
 }
 
-
 export default function MultiGamePage() {
     const {roomID} = useParams();
     const [params] = useSearchParams();
@@ -175,60 +175,59 @@ export default function MultiGamePage() {
         }
     }, [game, startGame]);
 
+    const handlers = useMemo(() => ({
+        "PLAYER_SET": ({playerID, gameData}: any) => {
+            setGame(gameData);
+            setSessionID(playerID);
+        },
+        "PLAYER_JOINED": ({name, gameData}: any) => {
+            setGame(gameData);
+            toast(`🎉 ${name} just slid into the game!`);
+        },
+        "PLAYER_MOVED_FORWARD": ({name, gameData}: any) => {
+            setGame(gameData);
+            toast(`🚀 ${name} is zooming to the next round!`);
+        },
+        "SCORE_UPDATED": ({gameData}: any) => {
+            toast.success("💃 Woohoo! You're groovin' into the next round!");
+            const isPlayerCompleted = gameData?.completedPlayers?.findIndex(player => player.id === sessionID);
+            if (isPlayerCompleted !== -1) {
+                setLeaderboard(true);
+            }
+            setGame(gameData);
+        },
+        "PLAYER_LEFT": ({name, gameData}: any) => {
+            toast(`👋 ${name} moon-walked out of the game.`);
+            setGame(gameData);
+        },
+        "GAME_COMPLETED": ({gameData}: any) => {
+            toast("🎊 Game over! Time to count those funky points!");
+            setGame(gameData);
+            setLeaderboard(true);
+        },
+        "ERROR": () => {
+            toast.error("😵 Oops! Couldn't join this jam session. Try a different room?");
+            setError(true);
+        },
+        "GAME_IN_PROGRESS": () => {
+            toast.error("🚫 Game’s already rollin’ — no late entries! Catch the next round 😎");
+            navigate("/game?mode=multi");
+        },
+        "GAME_OVER": () => {
+            toast.error("🎮 Game over, man! This room’s seen its final word. Time to start fresh!");
+            navigate("/game?mode=multi");
+        }
+    }), [sessionID, navigate]);
 
     useEffect(() => {
         if (!lastJsonMessage) return;
 
         const {playerID, type, name, game: gameData} = lastJsonMessage;
-        switch (type) {
-            case "PLAYER_SET":
-                setGame(gameData);
-                setSessionID(playerID);
-                break;
-            case "PLAYER_JOINED":
-                setGame(gameData);
-                toast(`🎉 ${name} just slid into the game!`);
-                break;
-
-            case "PLAYER_MOVED_FORWARD":
-                toast(`🚀 ${name} is zooming to the next round!`);
-                break;
-
-            case "SCORE_UPDATED":
-                toast.success("💃 Woohoo! You're groovin' into the next round!");
-                const isPlayerCompleted = gameData?.completedPlayers?.findIndex(player => player.id === sessionID);
-                if (isPlayerCompleted !== -1) {
-                    setLeaderboard(true);
-                }
-                setGame(gameData);
-                break;
-            case "PLAYER_LEFT":
-                toast(`👋 ${name} moon-walked out of the game.`);
-                setGame(gameData);
-                break;
-            case "GAME_COMPLETED":
-                toast("🎊 Game over! Time to count those funky points!");
-                setGame(gameData);
-                setLeaderboard(true);
-                break;
-
-            case "ERROR":
-                toast.error("😵 Oops! Couldn't join this jam session. Try a different room?");
-                setError(true);
-                break;
-
-            case "GAME_IN_PROGRESS":
-                toast.error("🚫 Game’s already rollin’ — no late entries! Catch the next round 😎");
-                navigate("/game?mode=multi");
-                break;
-
-            case "GAME_OVER":
-                toast.error("🎮 Game over, man! This room’s seen its final word. Time to start fresh!");
-                navigate("/game?mode=multi");
-                break;
-
-            default:
-                console.warn("Unhandled WebSocket message type:", type);
+        const handler = handlers[type];
+        if (handler) {
+            handler({playerID, name, gameData});
+        } else {
+            console.warn("Unhandled type: ", type);
         }
     }, [lastJsonMessage]);
 
@@ -236,52 +235,61 @@ export default function MultiGamePage() {
         return <Navigate to={"/game?mode=multi"}/>;
     }
 
-    return (
-        <>
-            {!connected ? (
-                <div className="flex justify-center items-center gap-2">
-                    <Loader/>
-                </div>
-            ) : game ? (
-                leaderboard ? (
-                    <Leaderboard players={game.completedPlayers}/>
-                ) : Object.keys(game.players).length < game.maxPlayers ? (
-                    <div className="flex justify-center items-center">
-                        <WaitingRoom
-                            players={game.players}
-                            maxPlayers={game.maxPlayers}
-                            roomID={roomID}
-                        />
-                    </div>
-                ) : !startGame ? (
-                    <div className="text-center mt-10">
-                        <p className="text-lg font-bold mb-2">🎬 Get ready to boogie!</p>
-                        <p className="text-3xl font-mono text-blue-600">{countdown}</p>
-                    </div>
-                ) : (
-                    <GameBoard
-                        isMulti={true}
-                        onRoundCompleted={(scoreState: ScoreState, word: string) => {
-                            if (scoreState.scoreType === 'lost') {
-                                toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
-                                return;
-                            }
-                            sendMessage(
-                                JSON.stringify({
-                                    type: "INCREMENT_SCORE",
-                                    roomID,
-                                    playerName,
-                                    score: scoreState.score
-                                })
-                            );
-                        }}
-                    />
-                )
-            ) : (
-                <p>Waiting for game state...</p>
-            )}
+    if (!connected) {
+        return (
+            <div className="flex justify-center items-center gap-2">
+                <Loader/>
+            </div>
+        );
+    }
 
-        </>
-    );
+    if (!game) {
+        return (
+            <p>Waiting for game...</p>
+        );
+    }
+
+    if (leaderboard) {
+        return (
+            <Leaderboard players={game.completedPlayers}/>
+        );
+    }
+
+    const playerCount = Object.keys(game.players).length;
+
+    if (game.state === 'WAITING_FOR_PLAYERS' && playerCount < game.maxPlayers) {
+        return (
+            <div className="flex justify-center items-center">
+                <WaitingRoom players={game.players} maxPlayers={game.maxPlayers} roomID={roomID}/>
+            </div>
+        );
+    }
+
+    if (!startGame) {
+        return (
+            <div className="text-center mt-10">
+                <p className="text-lg font-bold mb-2">🎬 Get ready to boogie!</p>
+                <p className="text-3xl font-mono text-blue-600">{countdown}</p>
+            </div>
+        );
+    }
+
+    return (
+        <GameBoard
+            isMulti={true}
+            onRoundCompleted={(scoreState, word) => {
+                if (scoreState.scoreType === 'lost') {
+                    toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
+                }
+                sendMessage(
+                    JSON.stringify({
+                        type: 'INCREMENT_SCORE',
+                        roomID,
+                        playerName,
+                        score: scoreState.score
+                    })
+                );
+            }}/>
+    )
 
 }

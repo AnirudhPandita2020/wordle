@@ -18,25 +18,27 @@ export type ScoreState = {
     scoreType: "lost" | "score-added" | "in-progress"
 };
 
+type GameBoardProps = {
+    onRoundCompleted: (scoreState: ScoreState, word: string) => void;
+    isMulti: boolean;
+};
+
 const FALLBACK_WORDS = ['HELLO', 'WORLD', 'REACT', 'HOOKS', 'GAMES', 'WORDS'];
 const MAX_GUESSES = 6;
 const WORD_LENGTH = 5;
-
 const initialGameState: GameState = {
     state: "in-progress",
     lines: new Array(MAX_GUESSES).fill(null).map(() => new Array(WORD_LENGTH).fill('')),
     gameWon: false,
     currentLineIndex: 0,
 };
-
 const initialScoreState: ScoreState = {
     scoreType: "in-progress",
     score: 0
 };
-
 const SCORES = [10, 8, 6, 4, 2, 1];
 
-export function GameBoard({isMulti, onRoundCompleted = (_score: number,_word: string) => {}}: { isMulti: boolean, onRoundCompleted?: (score: number,word: string) => void }) {
+export function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
     const [words, setWords] = useState<string[]>(FALLBACK_WORDS);
     const [word, setWord] = useState('');
     const [gameState, setGameState] = useState(initialGameState);
@@ -44,11 +46,12 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number,_word: st
     const wordRef = useRef(word);
     const gameStateRef = useRef(gameState);
     const {resetKeyStroke} = useKeyStroke();
-
-    useEffect(() => {
-        wordRef.current = word;
-        gameStateRef.current = gameState;
-    }, [word, gameState]);
+    const resetGame = useCallback(() => {
+        setGameState(initialGameState);
+        setWord(words[Math.floor(Math.random() * words.length)]);
+        setScore(initialScoreState);
+        resetKeyStroke();
+    }, [words, resetKeyStroke]);
 
     useEffect(() => {
         fetch('/words.json')
@@ -69,15 +72,15 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number,_word: st
     }, []);
 
     useEffect(() => {
-        if (gameState.state === 'finished'){
+        if (gameState.state === 'finished') {
             setScore(prev => {
-            if(gameState.gameWon) {
-                return {...prev, scoreType: 'score-added', score: SCORES[gameState.currentLineIndex - 1]};
-            }
-            return {...prev,scoreType: 'lost'};
-           }
-         );
-            gameState.gameWon ? playWinningSound() : plateLosingSound();
+                if (gameState.gameWon) {
+                    playWinningSound();
+                    return {...prev, scoreType: 'score-added', score: SCORES[gameState.currentLineIndex - 1]};
+                }
+                plateLosingSound();
+                return {...prev, scoreType: 'lost'};
+            });
             if (!isMulti) {
                 return;
             }
@@ -87,9 +90,16 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number,_word: st
     }, [gameState]);
 
     useEffect(() => {
-        if(score.scoreType === 'in-progress') return;
-        onRoundCompleted(score,word);
+        if (score.scoreType === 'in-progress') {
+            return;
+        }
+        onRoundCompleted(score, word);
     }, [score]);
+
+    useEffect(() => {
+        wordRef.current = word;
+        gameStateRef.current = gameState;
+    }, [word, gameState]);
 
     const handleKeyDown = (event: KeyboardEvent) => {
         const word = wordRef.current;
@@ -131,13 +141,6 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number,_word: st
             }
         }
     };
-
-    const resetGame = useCallback(() => {
-        setGameState(initialGameState);
-        setWord(words[Math.floor(Math.random() * words.length)]);
-        setScore(initialScoreState);
-        resetKeyStroke();
-    }, [words, resetKeyStroke]);
 
     return (
         <>

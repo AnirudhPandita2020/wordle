@@ -5,7 +5,7 @@ import JoinOrCreateGameCard from "./multi/join-create-page.tsx";
 export function GamePage() {
     const [params] = useSearchParams();
     if (params.get('mode') === 'single') {
-        return <GameBoard isMulti={false}/>;
+        return <GameBoard isMulti={false} onRoundCompleted={(_scoreState, _word) => {}}/>;
     } else if (params.get('mode') === 'multi') {
         return <JoinOrCreateGameCard/>;
     } else {
