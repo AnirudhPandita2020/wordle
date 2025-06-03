@@ -266,7 +266,6 @@ export default function MultiGamePage() {
                                 toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
                                 return;
                             }
- if(scoreState.scoreType === 'in-progress') return;
                             sendMessage(
                                 JSON.stringify({
                                     type: "INCREMENT_SCORE",
