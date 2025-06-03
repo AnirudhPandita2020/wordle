@@ -271,10 +271,10 @@ export default function MultiGamePage() {
                                     type: "INCREMENT_SCORE",
                                     roomID,
                                     playerName,
-                                    scoreState.score,
+                                    scoreState.score
                                 })
                             );
-                        }}
+                        }
                     />
                 )
             ) : (
