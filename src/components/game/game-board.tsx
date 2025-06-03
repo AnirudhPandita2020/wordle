@@ -53,8 +53,6 @@ export function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
         resetKeyStroke();
     }, [words, resetKeyStroke]);
 
-    console.log(word);
-
     useEffect(() => {
         fetch('/words.json')
             .then(response => response.json())
