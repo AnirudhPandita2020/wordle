@@ -13,7 +13,7 @@ type GameState = {
     currentLineIndex: number;
 };
 
-type ScoreState = {
+export type ScoreState = {
     score: number;
     scoreType: "lost" | "score-added" | "in-progress"
 };
