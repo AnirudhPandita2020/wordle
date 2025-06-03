@@ -68,7 +68,7 @@ export function GameBoard({isMulti, onRoundCompleted = (_score: number) => {}}: 
             const timer = setTimeout(resetGame, 3000);
             return () => clearTimeout(timer);
         }
-    }, [gameState.state]);
+    }, [gameState]);
 
     useEffect(() => {
         onRoundCompleted(score);
