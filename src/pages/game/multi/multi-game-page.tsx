@@ -274,7 +274,7 @@ export default function MultiGamePage() {
                                     score: scoreState.score
                                 })
                             );
-                        }
+                        }}
                     />
                 )
             ) : (
