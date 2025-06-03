@@ -261,9 +261,9 @@ export default function MultiGamePage() {
                 ) : (
                     <GameBoard
                         isMulti={true}
-                        onRoundCompleted={(score: number) => {
+                        onRoundCompleted={(score: number, word: string) => {
                             if (score === 0) {
-                                toast.error("🎉 Oops! Zero points... better luck next round! 😅");
+                                toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
                                 return;
                             }
                             sendMessage(
