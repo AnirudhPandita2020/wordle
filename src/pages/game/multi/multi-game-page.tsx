@@ -2,7 +2,7 @@ import useWebSocket from "react-use-websocket";
 import {useEffect, useState} from "react";
 import {toast} from "sonner";
 import {Navigate, useNavigate, useParams, useSearchParams} from "react-router";
-import {GameBoard} from "../../../components/game/game-board.tsx";
+import {GameBoard,ScoreState} from "../../../components/game/game-board.tsx";
 import {Copy} from "lucide-react";
 import {Button} from "../../../components/ui/button.tsx";
 import {Loader} from "../../../components/ui/loader.tsx";
@@ -261,17 +261,18 @@ export default function MultiGamePage() {
                 ) : (
                     <GameBoard
                         isMulti={true}
-                        onRoundCompleted={(score: number, word: string) => {
-                            if (score === 0) {
+                        onRoundCompleted={(scoreState: ScoreState, word: string) => {
+                            if (scoreState.scoreType === 'lost') {
                                 toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
                                 return;
                             }
+ if(scoreState.scoreType === 'in-progress') return;
                             sendMessage(
                                 JSON.stringify({
                                     type: "INCREMENT_SCORE",
                                     roomID,
                                     playerName,
-                                    score,
+                                    scoreState.score,
                                 })
                             );
                         }}
