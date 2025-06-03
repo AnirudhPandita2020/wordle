@@ -19,12 +19,21 @@ export default function Keyboard({onKeyPress}: KeyboardProp) {
             {KEYS.map((row, rowIndex) => (
                 <div key={rowIndex} className="flex justify-center gap-2 w-full">
                     {row.map((key) => {
-                        return <Button
-                            key={key}
-                            onClick={() => onKeyPress(key)}
-                            className={`flex-1 min-w-[25px] max-w-[50px] ${letterStyles[keyStroke[key.toUpperCase()]] || ''} capitalize px-2 py-2 text-sm font-medium rounded transition-all text-center`}>
-                            {key === 'Backspace' ? '←' : key === 'Enter' ? '↵' : key}
-                        </Button>
+                        return (
+                            <Button
+                                key={key}
+                                onClick={() => onKeyPress(key)}
+                                className={`
+                                            flex-1 min-w-[25px] max-w-[50px]
+                                            capitalize px-2 py-2 text-sm font-medium rounded transition-all text-center
+                                            bg-gray-200 text-black hover:bg-gray-300
+                                            ${letterStyles[keyStroke[key.toUpperCase()]] || 'dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'}
+                                `}
+                            >
+                                {key === 'Backspace' ? '←' : key === 'Enter' ? '↵' : key}
+                            </Button>
+                        );
+
                     })}
                 </div>
             ))}

@@ -6,7 +6,7 @@ type Status = 'correct' | 'misplaced' | 'wrong' | 'default';
 export const letterStyles = {
     correct: 'bg-green-500 text-white',
     misplaced: 'bg-yellow-500 text-white',
-    wrong: 'bg-gray-800 text-white',
+    wrong: 'bg-gray-900 text-white',
     default: ''
 };
 

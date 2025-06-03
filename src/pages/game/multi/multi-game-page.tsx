@@ -274,21 +274,34 @@ export default function MultiGamePage() {
     }
 
     return (
-        <GameBoard
-            isMulti={true}
-            onRoundCompleted={(scoreState, word) => {
-                if (scoreState.scoreType === 'lost') {
-                    toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
-                }
-                sendMessage(
-                    JSON.stringify({
-                        type: 'INCREMENT_SCORE',
-                        roomID,
-                        playerName,
-                        score: scoreState.score
-                    })
-                );
-            }}/>
+        <>
+            <div className="flex justify-center mb-4">
+                <div className="flex gap-6 items-center px-6 py-3 rounded-xl shadow-sm
+                    bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        🌀 Round: <span className="font-semibold text-gray-900 dark:text-white">{game.players[sessionID].currentRound}</span> / {game.maxRounds}
+                    </div>
+                    <div className="text-sm font-medium text-green-700 dark:text-green-400">
+                        💯 Score: <span className="font-semibold">{game.players[sessionID].score}</span>
+                    </div>
+                </div>
+            </div>
+            <GameBoard
+                isMulti={true}
+                onRoundCompleted={(scoreState, word) => {
+                    if (scoreState.scoreType === 'lost') {
+                        toast.error(`🎉 Oops! Guess was: ${word} Zero points... better luck next round! 😅`);
+                    }
+                    sendMessage(
+                        JSON.stringify({
+                            type: 'INCREMENT_SCORE',
+                            roomID,
+                            playerName,
+                            score: scoreState.score
+                        })
+                    );
+                }}/>
+        </>
     )
 
 }
