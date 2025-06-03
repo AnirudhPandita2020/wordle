@@ -196,9 +196,8 @@ export default function MultiGamePage() {
             }
             setGame(gameData);
         },
-        "PLAYER_LEFT": ({name, gameData}: any) => {
+        "PLAYER_LEFT": ({name}: any) => {
             toast(`👋 ${name} moon-walked out of the game.`);
-            setGame(gameData);
         },
         "GAME_COMPLETED": ({gameData}: any) => {
             toast("🎊 Game over! Time to count those funky points!");
