@@ -1,5 +1,5 @@
 import {Grid} from "./grid.tsx";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {Button} from "../ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
 import Keyboard from "../keyboard/keyboard.tsx";
@@ -13,7 +13,7 @@ type GameState = {
     currentLineIndex: number;
 };
 
-export type ScoreState = {
+type ScoreState = {
     score: number;
     scoreType: "lost" | "score-added" | "in-progress"
 };
@@ -26,6 +26,7 @@ type GameBoardProps = {
 const FALLBACK_WORDS = ['HELLO', 'WORLD', 'REACT', 'HOOKS', 'GAMES', 'WORDS'];
 const MAX_GUESSES = 6;
 const WORD_LENGTH = 5;
+const SCORES = [10, 8, 6, 4, 2, 1];
 const initialGameState: GameState = {
     state: "in-progress",
     lines: new Array(MAX_GUESSES).fill(null).map(() => new Array(WORD_LENGTH).fill('')),
@@ -36,22 +37,15 @@ const initialScoreState: ScoreState = {
     scoreType: "in-progress",
     score: 0
 };
-const SCORES = [10, 8, 6, 4, 2, 1];
 
-export function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
-    const [words, setWords] = useState<string[]>(FALLBACK_WORDS);
+function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
+    const [words, setWords] = useState(FALLBACK_WORDS);
     const [word, setWord] = useState('');
     const [gameState, setGameState] = useState(initialGameState);
-    const [score, setScore] = useState<ScoreState>(initialScoreState);
+    const [score, setScore] = useState(initialScoreState);
     const wordRef = useRef(word);
     const gameStateRef = useRef(gameState);
     const {resetKeyStroke} = useKeyStroke();
-    const resetGame = useCallback(() => {
-        setGameState(initialGameState);
-        setWord(words[Math.floor(Math.random() * words.length)]);
-        setScore(initialScoreState);
-        resetKeyStroke();
-    }, [words, resetKeyStroke]);
 
     useEffect(() => {
         fetch('/words.json')
@@ -67,8 +61,9 @@ export function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
     }, []);
 
     useEffect(() => {
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        const handler = (event: KeyboardEvent) => handleKeyDown(event.key);
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
     }, []);
 
     useEffect(() => {
@@ -101,14 +96,20 @@ export function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
         gameStateRef.current = gameState;
     }, [word, gameState]);
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const resetGame = () => {
+        setGameState(initialGameState);
+        setWord(words[Math.floor(Math.random() * words.length)]);
+        setScore(initialScoreState);
+        resetKeyStroke();
+    };
+
+    const handleKeyDown = (key: string) => {
         const word = wordRef.current;
         const gameState = gameStateRef.current;
 
         if (gameState.state === 'finished') return;
         if (word === '') return;
 
-        const key = event.key;
         const currentLine = [...gameState.lines[gameState.currentLineIndex]];
 
         if (/^[a-zA-Z]$/.test(key)) {
@@ -163,7 +164,9 @@ export function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
                     </Button>
                 </>
             )}
-            <Keyboard onKeyPress={(key) => handleKeyDown({key: key} as KeyboardEvent)}/>
+            <Keyboard onKeyPress={handleKeyDown}/>
         </>
     );
 }
+
+export {GameBoard, ScoreState, GameState} ;
