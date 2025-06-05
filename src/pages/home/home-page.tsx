@@ -13,7 +13,7 @@ export default function HomePage() {
                     <Link to={'/game?mode=single'}><CirclePlay/>Start game</Link>
                 </Button>
                 <Button asChild variant="outline">
-                    <Link to={'/game?mode=multi'}><Handshake/>Play with your friends</Link>
+                    <Link to={'/game?mode=multi'}><Handshake/>Multiplayer Mayhem</Link>
                 </Button>
             </div>
         </div>
