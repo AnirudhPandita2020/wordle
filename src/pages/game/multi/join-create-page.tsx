@@ -39,7 +39,7 @@ export default function JoinOrCreateGameCard() {
     useEffect(resetKeyStroke, []);
 
     const handleRoomCreation = () => {
-        if(maxPlayers < 2 || maxRounds < 4){
+        if (maxPlayers < 2 || maxRounds < 4) {
             toast.error('A minimum of 2 players or minimum of 4 rounds is required');
             return;
         }
@@ -58,6 +58,22 @@ export default function JoinOrCreateGameCard() {
             });
     };
 
+    const handleJoinRoom = () => {
+        if (!gameCode || !playerName) {
+            toast.error('Please enter a valid game code and player name');
+            return;
+        }
+        if (gameCode.trim().length < 6) {
+            toast.error('Game code must be at least 6 characters long');
+            return;
+        }
+        if (playerName.trim().length < 4) {
+            toast.error('Player name must be at least 4 characters long');
+            return;
+        }
+        navigate(`/room/${gameCode}?playerName=${playerName}`);
+    };
+
     return (
         <div className={`flex gap-4 ${mobile ? "flex-col items-center" : "flex-row"}`}>
             <Card className="w-[350px] bg-muted">
@@ -73,9 +89,7 @@ export default function JoinOrCreateGameCard() {
                                onChange={(event) => setPlayerName(event.target.value)}/>
                         <Input placeholder="Enter game code" value={gameCode}
                                onChange={(event) => setGameCode(event.target.value)}/>
-                        <Button disabled={!playerName || !gameCode} onClick={() => {
-                            navigate(`/room/${gameCode}?playerName=${playerName}`);
-                        }}>
+                        <Button disabled={!playerName || !gameCode} onClick={handleJoinRoom}>
                             <ArrowRight className="mr-2 h-4 w-4"/>
                             Join Room
                         </Button>
@@ -105,7 +119,8 @@ export default function JoinOrCreateGameCard() {
                         <Input min={4} max={10} type="number"
                                onChange={(event) => setMaxRounds(event.target.valueAsNumber)}
                                placeholder="Max rounds (e.g. 5)"/>
-                        <Button onClick={handleRoomCreation} disabled={(!playerName || !maxRounds || !maxPlayers) || isPending}>
+                        <Button onClick={handleRoomCreation}
+                                disabled={(!playerName || !maxRounds || !maxPlayers) || isPending}>
                             {!isPending ? <Plus className="mr-2 h-4 w-4"/> : <Loader/>}
                             Create Room
                         </Button>

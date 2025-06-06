@@ -1,14 +1,13 @@
-const winningSound = new Audio('/sounds/wordle_winning_sound.mp3');
-const losingSound = new Audio('/sounds/wordle_losing_sound.mp3');
+type SoundType = 'winning' | 'losing';
 
-export function playWinningSound() {
-    winningSound.play().catch((error) => {
-        console.error('Error playing winning sound:', error);
-    });
-}
+const sounds: Record<SoundType, HTMLAudioElement> = {
+    'winning': new Audio('/sounds/wordle_winning_sound.mp3'),
+    'losing': new Audio('/sounds/wordle_losing_sound.mp3')
+};
 
-export function plateLosingSound() {
-    losingSound.play().catch((error) => {
-        console.error('Error playing losing sound:', error);
+export default function playSound(type: SoundType) {
+    const sound = sounds[type];
+    sound?.play().catch((error) => {
+        console.error(`Error playing ${type} sound:`, error);
     });
 }

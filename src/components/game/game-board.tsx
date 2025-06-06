@@ -4,7 +4,7 @@ import {Button} from "../ui/button.tsx";
 import {RefreshCcw} from "lucide-react";
 import Keyboard from "../keyboard/keyboard.tsx";
 import {useKeyStroke} from "../../providers/key-stroke-provider.tsx";
-import {plateLosingSound, playWinningSound} from "../../lib/sound.ts";
+import playSound from "../../lib/sound.ts";
 
 type GameState = {
     state: "in-progress" | "finished";
@@ -70,10 +70,10 @@ function GameBoard({isMulti, onRoundCompleted}: GameBoardProps) {
         if (gameState.state === 'finished') {
             setScore(prev => {
                 if (gameState.gameWon) {
-                    playWinningSound();
+                    playSound('winning');
                     return {...prev, scoreType: 'score-added', score: SCORES[gameState.currentLineIndex - 1]};
                 }
-                plateLosingSound();
+                playSound('losing');
                 return {...prev, scoreType: 'lost'};
             });
             if (!isMulti) {
