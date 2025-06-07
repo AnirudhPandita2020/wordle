@@ -136,7 +136,7 @@ export default function MultiGamePage() {
     const {
         sendMessage,
         lastJsonMessage
-    } = useWebSocket(roomID && playerName ? `${SOCKET_URL}/wordle?roomID=${roomID}&playerName=${encodeURIComponent(playerName)}` : null,
+    } = useWebSocket(roomID && playerName ? `${SOCKET_URL}/game` : null,
         {
             onOpen: () => setConnected(true),
             onClose: () => setConnected(false),
@@ -149,6 +149,18 @@ export default function MultiGamePage() {
     );
 
     useEffect(() => {
+        if(!sessionID){
+            return;
+        }
+        sendMessage(JSON.stringify({
+            type: "JOIN_ROOM",
+            roomID,
+            playerName,
+            sessionID
+        }))
+    }, [sessionID]);
+
+    useEffect(() => {
         if (game && Object.keys(game.players).length === game.maxPlayers && !startGame) {
             setCountdown(5);
             const countdownInterval = setInterval(() => {
@@ -156,7 +168,7 @@ export default function MultiGamePage() {
                     if (prev === 1) {
                         clearInterval(countdownInterval);
                         setStartGame(true);
-                        sendMessage(JSON.stringify({type: "START_GAME"}));
+                        sendMessage(JSON.stringify({type: "START_GAME","roomID":roomID}));
                         return 0;
                     }
                     return prev - 1;
@@ -168,34 +180,31 @@ export default function MultiGamePage() {
     }, [game, startGame]);
 
     const handlers = useMemo(() => ({
-        "PLAYER_SET": ({playerID, gameData}: any) => {
-            setGame(gameData);
-            setSessionID(playerID);
-        },
-        "PLAYER_JOINED": ({name, gameData}: any) => {
-            setGame(gameData);
+        "PLAYER_SET": ({playerID}: {playerID:string}) => setSessionID(playerID),
+        "PLAYER_JOINED": ({name, game}: any) => {
+            setGame(game);
             toast(`🎉 ${name} just slid into the game!`);
         },
-        "PLAYER_MOVED_FORWARD": ({name, gameData}: any) => {
-            setGame(gameData);
+        "PLAYER_MOVED_FORWARD": ({name, game}: {name:string,game:Game}) => {
+            setGame(game);
             toast(`🚀 ${name} is zooming to the next round!`);
         },
-        "SCORE_UPDATED": ({gameData}: any) => {
-            const isPlayerCompleted = gameData?.completedPlayers?.findIndex(player => player.id === sessionID);
+        "SCORE_UPDATED": ({game}: {name:string,game:Game}) => {
+            const isPlayerCompleted = game?.completedPlayers?.findIndex(player => player.id === sessionID);
             if (isPlayerCompleted !== -1) {
                 toast.success("🎉 You scored some points! Keep it up!");
                 setLeaderboard(true);
             } else {
                 setTimeout(() => toast.success("💃 Woohoo! You're groovin' into the next round!"), 2000);
             }
-            setGame(gameData);
+            setGame(game);
         },
-        "PLAYER_LEFT": ({name}: any) => {
+        "PLAYER_LEFT": ({name}: {name:string}) => {
             toast(`👋 ${name} moon-walked out of the game.`);
         },
-        "GAME_COMPLETED": ({gameData}: any) => {
+        "GAME_COMPLETED": ({game}: {game:Game}) => {
             toast("🎊 Game over! Time to count those funky points!");
-            setGame(gameData);
+            setGame(game);
             setLeaderboard(true);
         },
         "ERROR": () => {
@@ -215,10 +224,10 @@ export default function MultiGamePage() {
     useEffect(() => {
         if (!lastJsonMessage) return;
 
-        const {playerID, type, name, game: gameData} = lastJsonMessage;
+        const {type,payload} = lastJsonMessage;
         const handler = handlers[type];
         if (handler) {
-            handler({playerID, name, gameData});
+            handler(payload);
         } else {
             console.warn("Unhandled type: ", type);
         }
@@ -291,7 +300,7 @@ export default function MultiGamePage() {
                         JSON.stringify({
                             type: 'INCREMENT_SCORE',
                             roomID,
-                            playerName,
+                            sessionID,
                             score: scoreState.score
                         })
                     );
