@@ -2,7 +2,7 @@ type SoundType = 'winning' | 'losing';
 
 const sounds: Record<SoundType, HTMLAudioElement> = {
     'winning': new Audio('/sounds/wordle_winning_sound.mp3'),
-    'losing': new Audio('/sounds/wordle_losing_sound.mp3')
+    'losing': new Audio('/sounds/wordle_losing_sound.wav'),
 };
 
 export default function playSound(type: SoundType) {
